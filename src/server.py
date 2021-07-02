@@ -4,7 +4,7 @@ import threading
 
 ## ========  Config  ========
 HEADER = 64
-PORT = 5050
+PORT = 5052
 #SERVER = '10.96.10.191'
 SERVER = socket.gethostbyname(socket.gethostname())
 ADDR = (SERVER, PORT)
@@ -19,7 +19,7 @@ connected_machines = []
 
 ## ========  Functions  ========
 def handle_client(conn, addr):
-    conn.send(f"Connected to {SERVER}".encode(FORMAT))
+    #conn.send(f"Connected to {SERVER}".encode(FORMAT))
     connected = True
     while connected:
         msg_length = conn.recv(HEADER).decode(FORMAT)
@@ -70,7 +70,11 @@ def handle_user():
                     sent = True
                     new_cmd = ' '.join(new_cmd[1:])
                     print(f'Sending \"{new_cmd}\" to {data["addr"][0]}')
-                    data['conn'].send(new_cmd.encode(FORMAT))
+                    message = new_cmd.encode(FORMAT)
+                    length = str(len(message)).encode(FORMAT)
+                    length += b' ' * (HEADER - len(length))
+                    data['conn'].send(length)
+                    data['conn'].send(message)
                     break
             if not sent:
                 print(f'{new_cmd[0]} is not connected to the server.')
