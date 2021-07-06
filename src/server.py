@@ -12,7 +12,8 @@ SERVER = socket.gethostbyname(socket.gethostname())
 ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
 DISCONNECT_MESSAGE = "exit"
-
+SEPARATOR = "<SEPARATOR>"
+BUFFER_SIZE = 4096 # send 4096 bytes each time step
 
 ## ========  Globals  ========
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -20,6 +21,14 @@ server.bind(ADDR)
 connected_machines = []
 
 ## ========  Functions  ========
+
+def snd_msg(conn, msg):
+    message = msg.encode(FORMAT)
+    length = str(len(message)).encode(FORMAT)
+    length += b' ' * (HEADER - len(length))
+    conn.send(length)
+    conn.send(message)
+
 def get_response(conn):
     msg_length = conn.recv(HEADER).decode(FORMAT)
     msg_length = int(msg_length)
@@ -92,14 +101,45 @@ def handle_user():
 
         ## put
         elif cmd_lst[0] == "put":
-            pass
+            new_cmd = cmd_lst[1:]
+            if len(new_cmd) < 2:
+                print("Usage: put <filename> <ip>")
+                continue
+            sent = False
+            filename = new_cmd[0]
+            ip = new_cmd[1]
+            filesize = os.path.getsize(filename)
+            for data in connected_machines:
+                if data['addr'][0] == ip:
+                    sent = True
+                    snd_msg(data['conn'], f"{filename}{SEPARATOR}{filesize}".encode())
+                    new_cmd = ' '.join(new_cmd[1:])
+                    print(f'Uploading \"{filename}\" to {data["addr"][0]}')
+                    progress = tqdm.tqdm(range(filesize), f"Sending {filename}", unit="B", unit_scale=True, unit_divisor=1024)
+                    
+                    with open(filename, "rb") as f:
+                        while True:
+                            # read the bytes from the file
+                            bytes_read = f.read(BUFFER_SIZE)
+                            if not bytes_read:
+                                # file transmitting is done
+                                break
+                            # we use sendall to assure transimission in
+                            # busy networks
+                            data['conn'].sendall(bytes_read)
+                            # update the progress bar
+                            progress.update(len(bytes_read))
 
+
+            
         ## help
         elif cmd_lst[0] == "help":
             print("1. broadcast <cmd here>")
             print("2. list")
             print("3. send <ip> <cmd here>")
-            print("4. help")
+            print("4. put <filename> <ip>")
+            print("5. grab <filename> <ip>")
+            print("6. help")
 
         ## Cmd not recognized
         else:
