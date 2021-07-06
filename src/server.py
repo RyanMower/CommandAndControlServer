@@ -4,7 +4,7 @@ import threading
 
 ## ========  Config  ========
 HEADER = 64
-PORT = 5052
+PORT = 5054
 #SERVER = '10.96.10.191'
 SERVER = socket.gethostbyname(socket.gethostname())
 ADDR = (SERVER, PORT)
