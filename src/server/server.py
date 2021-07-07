@@ -4,9 +4,20 @@ import threading
 import tqdm
 import os
 
+
+r = open("../port", 'r')
+port = int(r.readline())
+r.close()
+w = open("../port", 'w')
+port = port + 1
+w.write(str(port))
+w.close()
+
+
 ## ========  Config  ========
 HEADER = 64
-PORT = 5051
+PORT = port
+#PORT = 5050
 #SERVER = '10.96.10.191'
 SERVER = socket.gethostbyname(socket.gethostname())
 ADDR = (SERVER, PORT)
@@ -108,28 +119,48 @@ def handle_user():
             sent = False
             filename = new_cmd[0]
             ip = new_cmd[1]
-            filesize = os.path.getsize(filename)
+            try:
+                filesize = os.path.getsize(filename)
+            except:
+                print(f"{filename} does not exist.")
+                continue
+
             for data in connected_machines:
                 if data['addr'][0] == ip:
+                    snd_msg(data['conn'], "put")
                     sent = True
-                    snd_msg(data['conn'], f"{filename}{SEPARATOR}{filesize}".encode())
+                    snd_msg(data['conn'], f"{filename}{SEPARATOR}{filesize}")
                     new_cmd = ' '.join(new_cmd[1:])
                     print(f'Uploading \"{filename}\" to {data["addr"][0]}')
                     progress = tqdm.tqdm(range(filesize), f"Sending {filename}", unit="B", unit_scale=True, unit_divisor=1024)
-                    
-                    with open(filename, "rb") as f:
-                        while True:
-                            # read the bytes from the file
-                            bytes_read = f.read(BUFFER_SIZE)
-                            if not bytes_read:
-                                # file transmitting is done
-                                break
-                            # we use sendall to assure transimission in
-                            # busy networks
-                            data['conn'].sendall(bytes_read)
-                            # update the progress bar
-                            progress.update(len(bytes_read))
+                    bytes_left = filesize 
+                    try:
+                        f = open(filename, "rb")
+                    except:
+                        print(f"Could not open file {filename}.")
+                        continue
 
+                    while True:
+                        # read the bytes from the file
+                        if bytes_left > BUFFER_SIZE:
+                            bytes_to_read = BUFFER_SIZE
+                        else:
+                            bytes_to_read = bytes_left
+                        bytes_read = f.read(bytes_to_read)
+                        bytes_left = bytes_left - bytes_to_read
+                        if not bytes_read:
+                            # file transmitting is done
+                            # update the progress bar
+                            progress.update(filesize)
+                            break
+                        # we use sendall to assure transimission in
+                        # busy networks
+                        data['conn'].sendall(bytes_read)
+                        # update the progress bar
+                        progress.update(len(bytes_read))
+                    f.close()
+            if not sent:
+                print(f"{ip} not connected.")
 
             
         ## help

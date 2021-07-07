@@ -4,9 +4,15 @@ import os
 import subprocess
 import pathlib
 import tqdm
+import time
 
+r = open("../port", 'r')
+port = int(r.readline())
+r.close()
+
+PORT = port
 HEADER = 64
-PORT = 5051
+#PORT = 5050
 FORMAT = 'utf-8'
 DISCONNECT_MESSAGE = "exit"
 SERVER = socket.gethostbyname(socket.gethostname())
@@ -34,6 +40,15 @@ def snd_msg(conn, msg):
     conn.send(length)
     conn.send(message)
 
+def recieve_msg(conn):
+    msg_length = conn.recv(HEADER).decode(FORMAT)
+    if msg_length:
+        msg_length = int(msg_length)
+        msg = conn.recv(msg_length).decode(FORMAT)
+        return msg
+    else:
+        return ""
+
 def listen_to_server(conn):
     print(f"Connected to {SERVER}")
     connected = True
@@ -57,7 +72,7 @@ def listen_to_server(conn):
             elif msg[:3] == "put":
                 # receive the file infos
                 # receive using client socket, not server socket
-                received = client_socket.recv(BUFFER_SIZE).decode()
+                received = recieve_msg(client)
                 filename, filesize = received.split(SEPARATOR)
                 print(f'filename: {filename}, fsize: {filesize}')
                 # remove absolute path if there is
@@ -67,20 +82,28 @@ def listen_to_server(conn):
 
                 # start receiving the file from the socket
                 # and writing to the file stream
+                print("before")
                 progress = tqdm.tqdm(range(filesize), f"Receiving {filename}", unit="B", unit_scale=True, unit_divisor=1024)
+                bytes_left = filesize
                 with open(filename, "wb") as f:
-                    while True:
+                    while bytes_left > 0:
+                        if bytes_left < BUFFER_SIZE:
+                            bytes_to_write = bytes_left
+                        else:
+                            bytes_to_write = BUFFER_SIZE
                         # read 1024 bytes from the socket (receive)
-                        bytes_read = client_socket.recv(BUFFER_SIZE)
-                        if not bytes_read:
-                            # nothing is received
-                            # file transmitting is done
-                            break
+                        bytes_read = client.recv(bytes_to_write)
+                        print(bytes_read)
+                        bytes_left = bytes_left - bytes_to_write
+                        print(f'Bytes left {str(bytes_left)}')
                         # write to the file the bytes we just received
                         f.write(bytes_read)
                         # update the progress bar
                         progress.update(len(bytes_read))
-
+                progress.update(filesize)
+                time.sleep(1)
+                print("Done")
+                f.close()
             else:
                 execute_command(conn, msg)
     conn.close()
