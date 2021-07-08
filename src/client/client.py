@@ -135,7 +135,10 @@ def listen_to_server(conn):
                 progress.close()
                 f.close()
 
-
+            elif msg[:5] == "close":
+                client.close()
+                print("Killed by server.")
+                connected = False
             else:
                 execute_command(conn, msg)
     conn.close()
