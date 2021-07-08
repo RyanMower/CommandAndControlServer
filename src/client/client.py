@@ -82,7 +82,6 @@ def listen_to_server(conn):
 
                 # start receiving the file from the socket
                 # and writing to the file stream
-                print("before")
                 progress = tqdm.tqdm(range(filesize), f"Receiving {filename}", unit="B", unit_scale=True, unit_divisor=1024)
                 bytes_left = filesize
                 with open(filename, "wb") as f:
@@ -93,16 +92,14 @@ def listen_to_server(conn):
                             bytes_to_write = BUFFER_SIZE
                         # read 1024 bytes from the socket (receive)
                         bytes_read = client.recv(bytes_to_write)
-                        print(bytes_read)
+                        #print(bytes_read)
                         bytes_left = bytes_left - bytes_to_write
-                        print(f'Bytes left {str(bytes_left)}')
+                        #print(f'Bytes left {str(bytes_left)}')
                         # write to the file the bytes we just received
                         f.write(bytes_read)
                         # update the progress bar
                         progress.update(len(bytes_read))
-                progress.update(filesize)
-                time.sleep(1)
-                print("Done")
+                progress.close()
                 f.close()
             else:
                 execute_command(conn, msg)
