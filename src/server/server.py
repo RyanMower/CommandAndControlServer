@@ -108,7 +108,48 @@ def handle_user():
     
         ## grab
         elif cmd_lst[0] == "grab":
-            pass
+            for data in connected_machines:
+                if data['addr'][0] == cmd_lst[2]:
+                    snd_msg(data['conn'], "grab")
+                    print(f"filename: {cmd_lst[1]}")
+                    snd_msg(data['conn'], cmd_lst[1]) ## Sending ip the file name to grab
+                    resp = get_response(data['conn'])
+                    
+                    if resp != "SUCCESS":
+                        print(resp)
+                        continue
+
+                    # receive the file infos
+                    # receive using client socket, not server socket
+                    received = get_response(data['conn'])
+                    filename, filesize = received.split(SEPARATOR)
+                    print(f'filename: {filename}, fsize: {filesize}')
+        
+                    # convert to integer
+                    filesize = int(filesize)
+
+                    # start receiving the file from the socket
+                    # and writing to the file stream
+                    progress = tqdm.tqdm(range(filesize), f"Receiving {filename}", unit="B", unit_scale=True, unit_divisor=1024)
+                    bytes_left = filesize
+                    with open(filename, "wb") as f:
+                        while bytes_left > 0:
+                            if bytes_left < BUFFER_SIZE:
+                                bytes_to_write = bytes_left
+                            else:
+                                bytes_to_write = BUFFER_SIZE
+                            # read 1024 bytes from the socket (receive)
+                            bytes_read = data['conn'].recv(bytes_to_write)
+                            #print(bytes_read)
+                            bytes_left = bytes_left - bytes_to_write
+                            #print(f'Bytes left {str(bytes_left)}')
+                            # write to the file the bytes we just received
+                            f.write(bytes_read)
+                            # update the progress bar
+                            progress.update(len(bytes_read))
+                    progress.close()
+                    f.close()
+         
 
         ## put
         elif cmd_lst[0] == "put":

