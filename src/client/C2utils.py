@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
 import socket 
 import os
+import tqdm
+
 
 ## ========  Config  ========
 HEADER = 64
 FORMAT = 'utf-8'
+SEPARATOR = "<SEPARATOR>"
+BUFFER_SIZE = 4096 # send 4096 bytes each time step
 
 ## ========  Functions  ========
 def snd_msg(conn, msg):
@@ -22,3 +26,76 @@ def get_msg(conn):
         return msg 
     else:
         return ""
+
+
+def snd_file(conn, filename):
+    sent = False
+    try:                                                                                                       
+        filesize = os.path.getsize(filename)                                                                   
+    except:                                                                                                    
+        return f"{filename} does not exist."
+
+    snd_msg(conn, "put")
+    sent = True
+    snd_msg(conn, f"{filename}{SEPARATOR}{filesize}")
+    progress = tqdm.tqdm(range(filesize), f"Sending {filename}", unit="B", unit_scale=True, unit_divisor=1024)
+    bytes_left = filesize
+
+    with open(filename, 'rb') as f:
+        while bytes_left > 0:
+            # read the bytes from the file
+            if bytes_left > BUFFER_SIZE:
+                bytes_to_read = BUFFER_SIZE
+            else:
+                bytes_to_read = bytes_left
+            bytes_read = f.read(bytes_to_read)
+            bytes_left = bytes_left - bytes_to_read
+            # we use sendall to assure transimission in
+            # busy networks
+            conn.sendall(bytes_read)
+            # update the progress bar
+            progress.update(len(bytes_read))
+    progress.close()
+    f.close()
+    return "SUCCESS"
+
+def get_file(conn, filename):
+    snd_msg(conn, "grab")
+    print(f"filename: {filename}")
+    snd_msg(conn, filename) ## Sending ip the file name to grab
+    resp = get_msg(conn)
+    
+    if resp != "SUCCESS":
+        return resp
+ 
+    # receive the file infos
+    # receive using client socket, not server socket
+    received = get_msg(conn)
+    filename, filesize = received.split(SEPARATOR)
+    print(f'filename: {filename}, fsize: {filesize}')
+ 
+    # convert to integer
+    filesize = int(filesize)
+ 
+    # start receiving the file from the socket
+    # and writing to the file stream
+    progress = tqdm.tqdm(range(filesize), f"Receiving {filename}", unit="B", unit_scale=True, unit_divisor=1024)
+    bytes_left = filesize
+    with open(filename, "wb") as f:
+        while bytes_left > 0:
+            if bytes_left < BUFFER_SIZE:
+                bytes_to_write = bytes_left
+            else:
+                bytes_to_write = BUFFER_SIZE
+            # read 1024 bytes from the socket (receive)
+            bytes_read = conn.recv(bytes_to_write)
+            #print(bytes_read)
+            bytes_left = bytes_left - bytes_to_write
+            #print(f'Bytes left {str(bytes_left)}')
+            # write to the file the bytes we just received
+            f.write(bytes_read)
+            # update the progress bar
+            progress.update(len(bytes_read))
+    progress.close()
+    f.close()
+    return "SUCCESS"
