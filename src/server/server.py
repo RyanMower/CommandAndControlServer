@@ -99,18 +99,28 @@ def handle_user():
                 continue
             for data in connected_machines:
                 if data['addr'][0] == cmd_lst[2]:
-                    print(get_file(data['conn'], cmd_lst[1]))
+                    snd_msg(data['conn'], "grab")             
+                    snd_msg(data['conn'], cmd_lst[1]) ## Sending ip the file name to grab
+                    resp = get_msg(data['conn'])
 
-         
+                    if resp != "SUCCESS":
+                        print(resp)
+                        continue
+                   
+                    resp = get_file(data['conn'], cmd_lst[1]) 
+                    if resp != "SUCCESS":
+                        print(resp)
+                        continue
 
         ## put
         elif cmd_lst[0] == "put":
-            if len(cmd_lst) < 2:
+            if len(cmd_lst) != 3:
                 print("Usage: put <filename> <ip>")
                 continue
 
             for data in connected_machines:
                 if data['addr'][0] == cmd_lst[2]:
+                    snd_msg(data['conn'], "put")
                     print(snd_file(data['conn'], cmd_lst[1]))
 
         ## Close

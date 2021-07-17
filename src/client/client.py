@@ -58,6 +58,7 @@ def listen_to_server(conn):
                 # receive the file infos
                 # receive using client socket, not server socket
                 received = get_msg(client)
+                print(f'Received: {received}')
                 filename, filesize = received.split(SEPARATOR)
                 print(f'filename: {filename}, fsize: {filesize}')
                 # remove absolute path if there is
@@ -89,7 +90,6 @@ def listen_to_server(conn):
             
             elif msg[:4] == "grab":
                 filename = get_msg(client)
-                print(f'Filename: {filename}')
 
                 try:
                     filesize = os.path.getsize(filename)

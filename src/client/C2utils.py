@@ -29,14 +29,11 @@ def get_msg(conn):
 
 
 def snd_file(conn, filename):
-    sent = False
     try:                                                                                                       
         filesize = os.path.getsize(filename)                                                                   
     except:                                                                                                    
         return f"{filename} does not exist."
 
-    snd_msg(conn, "put")
-    sent = True
     snd_msg(conn, f"{filename}{SEPARATOR}{filesize}")
     progress = tqdm.tqdm(range(filesize), f"Sending {filename}", unit="B", unit_scale=True, unit_divisor=1024)
     bytes_left = filesize
@@ -60,26 +57,17 @@ def snd_file(conn, filename):
     return "SUCCESS"
 
 def get_file(conn, filename):
-    snd_msg(conn, "grab")               ## MOVE THIS BACK INTO SEVER
-    print(f"filename: {filename}")
-    snd_msg(conn, filename) ## Sending ip the file name to grab
-    resp = get_msg(conn)
-    
-    if resp != "SUCCESS":
-        return resp                 ## UNTIL THIS LINE
- 
     # receive the file infos
     # receive using client socket, not server socket
     received = get_msg(conn)
     filename, filesize = received.split(SEPARATOR)
-    print(f'filename: {filename}, fsize: {filesize}')
  
     # convert to integer
     filesize = int(filesize)
  
     # start receiving the file from the socket
     # and writing to the file stream
-    progress = tqdm.tqdm(range(filesize), f"Receiving {filename}", unit="B", unit_scale=True, unit_divisor=1024)
+    progress = tqdm.tqdm(range(filesize), f"Receiving {filename}.", unit="B", unit_scale=True, unit_divisor=1024)
     bytes_left = filesize
     with open(filename, "wb") as f:
         while bytes_left > 0:
