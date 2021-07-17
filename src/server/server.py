@@ -13,7 +13,7 @@ port = port + 1
 w.write(str(port))
 w.close()
 
-
+#############################
 ## ========  Config  ========
 HEADER = 64
 PORT = port
@@ -22,9 +22,7 @@ PORT = port
 SERVER = socket.gethostbyname(socket.gethostname())
 ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
-DISCONNECT_MESSAGE = "exit"
-SEPARATOR = "<SEPARATOR>"
-BUFFER_SIZE = 4096 # send 4096 bytes each time step
+#############################
 
 ## ========  Globals  ========
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -62,13 +60,13 @@ def handle_user():
                 print("=============================================")
                 itr = itr + 1
 
-
         ## List
         elif cmd_lst[0] == "list":
             count = 1
             for data in connected_machines:
                 print(f'{str(count)}) {data["addr"][0]}')
                 count = count + 1
+
         ## Send
         elif cmd_lst[0] == "send":
             new_cmd = cmd_lst[1:]
@@ -107,7 +105,7 @@ def handle_user():
                         print(resp)
                         continue
                    
-                    resp = get_file(data['conn'], cmd_lst[1]) 
+                    resp = get_file(data['conn']) 
                     if resp != "SUCCESS":
                         print(resp)
                         continue
@@ -121,7 +119,10 @@ def handle_user():
             for data in connected_machines:
                 if data['addr'][0] == cmd_lst[2]:
                     snd_msg(data['conn'], "put")
-                    print(snd_file(data['conn'], cmd_lst[1]))
+                    resp = snd_file(data['conn'], cmd_lst[1])
+                    if resp != "SUCCESS":
+                        print(resp)
+                        continue
 
         ## Close
         elif cmd_lst[0] == "close":

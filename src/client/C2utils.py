@@ -56,7 +56,7 @@ def snd_file(conn, filename):
     f.close()
     return "SUCCESS"
 
-def get_file(conn, filename):
+def get_file(conn):
     # receive the file infos
     # receive using client socket, not server socket
     received = get_msg(conn)
