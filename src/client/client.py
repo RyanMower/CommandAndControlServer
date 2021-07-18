@@ -7,15 +7,11 @@ import tqdm
 import time
 from C2utils import snd_msg, get_msg, snd_file, get_file
 
-r = open("../port", 'r')
-port = int(r.readline())
-r.close()
-
 #############################
 ## ========  Config  ========
-PORT = port  
-#PORT = 5050 ## CONFIGURE THIS
+PORT = 5054 ## CONFIGURE THIS
 SERVER = socket.gethostbyname(socket.gethostname()) ## CONFIGURE THIS
+## --------------------------
 FORMAT = 'utf-8'
 ADDR = (SERVER, PORT)
 DISCONNECT_MESSAGE = "exit"

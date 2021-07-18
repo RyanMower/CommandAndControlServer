@@ -5,20 +5,12 @@ import tqdm
 import os
 from C2utils import snd_msg, get_msg, snd_file, get_file
 
-r = open("../port", 'r')
-port = int(r.readline())
-r.close()
-w = open("../port", 'w')
-port = port + 1
-w.write(str(port))
-w.close()
-
 #############################
 ## ========  Config  ========
-PORT = port
-#PORT = 5050             ## CONFIGURE THIS
+PORT = 5054             ## CONFIGURE THIS
 #SERVER = '10.96.10.191' ## CONFIGURE THIS
 SERVER = socket.gethostbyname(socket.gethostname())
+## --------------------------
 ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
 #############################
@@ -72,7 +64,8 @@ def handle_user():
             for data in connected_machines:
                 if data['addr'][0] == new_cmd[0]:
                     sent = True
-                    snd_msg(data['conn'], new_cmd[1])
+                    msg = ' '.join(new_cmd[1:])
+                    snd_msg(data['conn'], msg)
                     resp = get_msg(data['conn'])
                     print(resp)
 
