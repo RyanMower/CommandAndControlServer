@@ -8,8 +8,8 @@ import time
 
 #############################
 ## ========  Config  ========
-PORT   = 5050         ## CONFIGURE THIS (TODO)
-SERVER = '127.0.0.1'  ## CONFIGURE THIS (TODO)
+PORT   = 5052         ## CONFIGURE THIS (TODO)
+SERVER = '10.96.10.191'  ## CONFIGURE THIS (TODO)
 ## --------------------------
 ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
@@ -43,7 +43,7 @@ def snd_msg(conn, msg):
         bytes_left = byte_left - len(buf_msg)
 
 def get_msg(conn):
-    msg_length = int(conn(.recv(HEADER).decode(FORMAT))
+    msg_length = int(conn.recv(HEADER).decode(FORMAT))
     bytes_left = msg_length
     msg = ""
 
