@@ -35,8 +35,6 @@ def snd_msg(conn, msg):
 
 def get_msg(conn):
     msg_length = conn.recv(HEADER).decode(FORMAT)
-    print(msg_length)
-    print("MSG_LENGTH: " + msg_length)
 
     if msg_length:    
         msg_length = int(msg_length)

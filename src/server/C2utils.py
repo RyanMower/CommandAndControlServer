@@ -15,7 +15,7 @@ def snd_msg(conn, msg):
     bytes_left = len(msg)
     cur_pos = 0
     
-    byts_left_msg = str(bytes_left).encode(FORMAT)
+    bytes_left_msg = (str(bytes_left)).encode(FORMAT)
     conn.send(bytes_left_msg)
 
     while bytes_left > 0:
@@ -26,25 +26,29 @@ def snd_msg(conn, msg):
             buf_msg = msg[cur_pos : (cur_pos + bytes_left)]
             cur_pos = cur_pos + bytes_left
             
-        message = buf_msg
+        message = buf_msg.encode(FORMAT)
         length = str(len(message)).encode(FORMAT)
         length += b' ' * (HEADER - len(length))
         conn.send(length)
         conn.send(message)
-        bytes_left = byte_left - len(buf_msg)
+        bytes_left = bytes_left - len(buf_msg)
 
 def get_msg(conn):
-    msg_length = int(conn.recv(HEADER).decode(FORMAT))
+    msg_length = conn.recv(HEADER).decode(FORMAT) 
+    if msg_length:
+        msg_length = int(msg_length)
+    else:
+        return ""
+
     bytes_left = msg_length
     msg = ""
 
     while bytes_left > 0:
-        bytes_to_read = conn.recv(HEADER).decode(FORMAT)
+        bytes_to_read = int(conn.recv(HEADER).decode(FORMAT))
         msg = msg + conn.recv(msg_length).decode(FORMAT)    
         bytes_left = bytes_left - bytes_to_read
 
     return msg
-
 
 def snd_file(conn, filename):
     try:                                                             

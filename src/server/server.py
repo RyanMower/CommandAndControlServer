@@ -36,7 +36,7 @@ def handle_user():
             if len(new_cmd) < 1:
                 print("Usage: broadcast <cmd>")
                 continue
-            new_cmd = ' '.join(new_cmd)
+            new_cmd = ' '.join(new_cmd).lstrip(' ')
             print(f'Sending \"{new_cmd}\" to...')
             itr = 1
             for data in connected_machines:
@@ -64,7 +64,7 @@ def handle_user():
             for data in connected_machines:
                 if data['addr'][0] == new_cmd[0]:
                     sent = True
-                    msg = ' '.join(new_cmd[1:])
+                    msg = (' '.join(new_cmd[1:])).lstrip(' ')
                     snd_msg(data['conn'], msg)
                     resp = get_msg(data['conn'])
                     print(resp)
