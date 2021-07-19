@@ -6,8 +6,8 @@ import os
 
 #############################
 ## ========  Config  ========
-PORT   = 5050         ## CONFIGURE THIS (TODO)
-SERVER = '127.0.0.1'  ## CONFIGURE THIS (TODO)
+PORT   = 5052         ## CONFIGURE THIS (TODO)
+SERVER = '10.96.10.191'  ## CONFIGURE THIS (TODO)
 ## --------------------------
 ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
@@ -26,7 +26,7 @@ def snd_msg(conn, msg):
     bytes_left = len(msg)
     cur_pos = 0
     
-    byts_left_msg = str(bytes_left).encode(FORMAT)
+    bytes_left_msg = str(bytes_left).encode(FORMAT)
     conn.send(bytes_left_msg)
 
     while bytes_left > 0:
