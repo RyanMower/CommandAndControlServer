@@ -35,7 +35,7 @@ def snd_msg(conn, msg):
             buf_msg = msg[cur_pos : (cur_pos + bytes_left)]
             cur_pos = cur_pos + bytes_left
             
-        message = buf_msg
+        message = buf_msg.encode(FORMAT)
         length = str(len(message)).encode(FORMAT)
         length += b' ' * (HEADER - len(length))
         conn.send(length)
