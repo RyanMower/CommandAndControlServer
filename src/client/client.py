@@ -24,7 +24,7 @@ def snd_msg(conn, msg):
     bytes_left = len(msg)
     cur_pos = 0
     
-    byts_left_msg = str(bytes_left).encode(FORMAT)
+    bytes_left_msg = (str(bytes_left)).encode(FORMAT)
     conn.send(bytes_left_msg)
 
     while bytes_left > 0:
@@ -44,6 +44,7 @@ def snd_msg(conn, msg):
 
 def get_msg(conn):
     msg_length = conn.recv(HEADER).decode(FORMAT)
+    print("MSG_LENGTH: " + msg_length)
 
     if msg_length:    
         msg_length = int(msg_length)

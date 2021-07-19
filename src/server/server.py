@@ -26,7 +26,7 @@ def snd_msg(conn, msg):
     bytes_left = len(msg)
     cur_pos = 0
     
-    bytes_left_msg = str(bytes_left).encode(FORMAT)
+    bytes_left_msg = (str(bytes_left)).encode(FORMAT)
     conn.send(bytes_left_msg)
 
     while bytes_left > 0:
