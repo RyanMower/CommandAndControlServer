@@ -8,7 +8,7 @@ import time
 
 #############################
 ## ========  Config  ========
-PORT   = 5052         ## CONFIGURE THIS (TODO)
+PORT   = 5053         ## CONFIGURE THIS (TODO)
 SERVER = '10.96.10.191'  ## CONFIGURE THIS (TODO)
 ## --------------------------
 ADDR = (SERVER, PORT)
