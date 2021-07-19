@@ -50,12 +50,11 @@ def get_msg(conn):
     else:
         return ""
 
-
     bytes_left = msg_length
     msg = ""
 
     while bytes_left > 0:
-        bytes_to_read = conn.recv(HEADER).decode(FORMAT)
+        bytes_to_read = int(conn.recv(HEADER).decode(FORMAT))
         msg = msg + conn.recv(msg_length).decode(FORMAT)    
         bytes_left = bytes_left - bytes_to_read
 
