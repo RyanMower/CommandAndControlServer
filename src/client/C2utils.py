@@ -12,20 +12,46 @@ BUFFER_SIZE = 4096 # send 4096 bytes each time step
 
 ## ========  Functions  ========
 def snd_msg(conn, msg):
-    message = msg.encode(FORMAT)
-    length = str(len(message)).encode(FORMAT)
-    length += b' ' * (HEADER - len(length))
-    conn.send(length)
-    conn.send(message)
+    bytes_left = len(msg)
+    cur_pos = 0
+    
+    bytes_left_msg = (str(bytes_left)).encode(FORMAT)
+    conn.send(bytes_left_msg)
+
+    while bytes_left > 0:
+        if BUFFER_SIZE < bytes_left:
+            buf_msg = msg[cur_pos : (cur_pos + BUFFER_SIZE)]
+            cur_pos = cur_pos + BUFFER_SIZE
+        else:
+            buf_msg = msg[cur_pos : (cur_pos + bytes_left)]
+            cur_pos = cur_pos + bytes_left
+            
+        message = buf_msg.encode(FORMAT)
+        length = str(len(message)).encode(FORMAT)
+        length += b' ' * (HEADER - len(length))
+        conn.send(length)
+        conn.send(message)
+        bytes_left = bytes_left - len(buf_msg)
 
 def get_msg(conn):
     msg_length = conn.recv(HEADER).decode(FORMAT)
-    if msg_length:
+    print(msg_length)
+    print("MSG_LENGTH: " + msg_length)
+
+    if msg_length:    
         msg_length = int(msg_length)
-        msg = conn.recv(msg_length).decode(FORMAT)
-        return msg 
     else:
         return ""
+
+    bytes_left = msg_length
+    msg = ""
+
+    while bytes_left > 0:
+        bytes_to_read = int(conn.recv(HEADER).decode(FORMAT))
+        msg = msg + conn.recv(msg_length).decode(FORMAT)    
+        bytes_left = bytes_left - bytes_to_read
+
+    return msg
 
 
 def snd_file(conn, filename):
