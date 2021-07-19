@@ -12,20 +12,24 @@ BUFFER_SIZE = 4096 # send 4096 bytes each time step
 
 ## ========  Functions  ========
 def snd_msg(conn, msg):
+    print("MSG" + msg)
     bytes_left = len(msg)
     cur_pos = 0
     
     bytes_left_msg = (str(bytes_left)).encode(FORMAT)
+    print("Sending message length." + str(bytes_left))
     conn.send(bytes_left_msg)
 
     while bytes_left > 0:
+        print(f'bytes_left = {str(bytes_left)}')
         if BUFFER_SIZE < bytes_left:
             buf_msg = msg[cur_pos : (cur_pos + BUFFER_SIZE)]
             cur_pos = cur_pos + BUFFER_SIZE
         else:
             buf_msg = msg[cur_pos : (cur_pos + bytes_left)]
             cur_pos = cur_pos + bytes_left
-            
+        
+        print("BUF_MSG" + buf_msg)
         message = buf_msg.encode(FORMAT)
         length = str(len(message)).encode(FORMAT)
         length += b' ' * (HEADER - len(length))
@@ -35,6 +39,7 @@ def snd_msg(conn, msg):
 
 def get_msg(conn):
     msg_length = conn.recv(HEADER).decode(FORMAT) 
+    print("MESSAGE LENGTH 1)" + msg_length)
     if msg_length:
         msg_length = int(msg_length)
     else:
@@ -42,10 +47,10 @@ def get_msg(conn):
 
     bytes_left = msg_length
     msg = ""
-
+    print("BYES_LEFT" + str(bytes_left))
     while bytes_left > 0:
         bytes_to_read = int(conn.recv(HEADER).decode(FORMAT))
-        msg = msg + conn.recv(msg_length).decode(FORMAT)    
+        msg = msg + conn.recv(bytes_to_read).decode(FORMAT)    
         bytes_left = bytes_left - bytes_to_read
 
     return msg

