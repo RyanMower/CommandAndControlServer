@@ -7,7 +7,7 @@ import os
 #############################
 ## ========  Config  ========
 PORT   = 5050         ## CONFIGURE THIS (TODO)
-SERVER = '127.0.0.1'  ## CONFIGURE THIS (TODO)
+SERVER = '10.96.10.191'  ## CONFIGURE THIS (TODO)
 ## --------------------------
 ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
@@ -32,11 +32,15 @@ def snd_msg(conn, msg):
 def get_msg(conn):
     msg_length = conn.recv(HEADER).decode(FORMAT)
     if msg_length:
-        msg_length = int(msg_length)
+        try:
+            msg_length = int(msg_length)
+        except:
+            return ""
         msg = conn.recv(msg_length).decode(FORMAT)
         return msg 
     else:
         return ""
+
 
 
 def snd_file(conn, filename):

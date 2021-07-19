@@ -30,7 +30,10 @@ def snd_msg(conn, msg):
 def get_msg(conn):
     msg_length = conn.recv(HEADER).decode(FORMAT)
     if msg_length:
-        msg_length = int(msg_length)
+        try:
+            msg_length = int(msg_length)
+        except:
+            return ""
         msg = conn.recv(msg_length).decode(FORMAT)
         return msg 
     else:
