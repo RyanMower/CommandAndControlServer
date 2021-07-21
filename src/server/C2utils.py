@@ -2,7 +2,6 @@
 import socket 
 import os
 import tqdm
-import sys
 
 ## ========  Config  ========
 HEADER = 64
