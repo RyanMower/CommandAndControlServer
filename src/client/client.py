@@ -4,7 +4,6 @@ import os
 import subprocess
 import pathlib
 import tqdm
-import time
 from C2utils import snd_msg, get_msg, snd_file, get_file
 
 #############################
