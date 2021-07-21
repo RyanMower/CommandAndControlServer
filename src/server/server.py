@@ -8,8 +8,8 @@ from C2utils import snd_file, get_file, snd_msg, get_msg
 #############################
 ## ========  Config  ========
 PORT = 5050             ## CONFIGURE THIS
-#SERVER = '10.96.10.191' ## CONFIGURE THIS
-SERVER = socket.gethostbyname(socket.gethostname())
+SERVER = '10.96.10.191' ## CONFIGURE THIS
+#SERVER = socket.gethostbyname(socket.gethostname())
 ## --------------------------
 ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
