@@ -13,10 +13,10 @@ BUFFER_SIZE = 4096 # send 4096 bytes each time step
 ## ========  Functions  ========
 def snd_msg(conn, msg):
     message = msg.encode(FORMAT)
-    length = str(sys.getsizeof(message)).encode(FORMAT)
+    length = (str(len(message))).encode(FORMAT)
     length += b' ' * (HEADER - len(length))
-    print("HEADER_LENGTH: " + sys.getsizeof(length))
-    print(f'MSG_SIZE: {str(sys.getsizeof(message))}\n{msg}')
+    print("HEADER_LENGTH (64): " + str(len(length)))
+    print(f'MSG_SIZE: {str(len(message))}\n{msg}')
     conn.send(length)
     conn.send(message)
 
