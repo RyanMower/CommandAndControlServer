@@ -15,7 +15,7 @@ def snd_msg(conn, msg):
     message = msg.encode(FORMAT)
     length = str(sys.getsizeof(message)).encode(FORMAT)
     length += b' ' * (HEADER - len(length))
-    print(f'LENGTH: {len(msg)}\n{msg}')
+    print(f'LENGTH: {str(sys.getsizeof(message))}\n{msg}')
     conn.send(length)
     conn.send(message)
 
