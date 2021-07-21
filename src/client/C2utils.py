@@ -2,7 +2,7 @@
 import socket 
 import os
 import tqdm
-
+import sys
 
 ## ========  Config  ========
 HEADER = 64
@@ -13,14 +13,16 @@ BUFFER_SIZE = 4096 # send 4096 bytes each time step
 ## ========  Functions  ========
 def snd_msg(conn, msg):
     message = msg.encode(FORMAT)
-    length = str(len(message)).encode(FORMAT)
+    length = str(sys.getsizeof(message)).encode(FORMAT)
     length += b' ' * (HEADER - len(length))
+    print(f'LENGTH: {len(msg)}\n{msg}')
     conn.send(length)
     conn.send(message)
 
 def get_msg(conn):
     msg_length = conn.recv(HEADER).decode(FORMAT)
     if msg_length:
+        print("Recieved Length: " + str(msg_length))
         msg_length = int(msg_length)
         msg = conn.recv(msg_length).decode(FORMAT)
         return msg
