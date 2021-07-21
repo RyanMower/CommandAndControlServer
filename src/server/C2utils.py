@@ -15,7 +15,8 @@ def snd_msg(conn, msg):
     message = msg.encode(FORMAT)
     length = str(sys.getsizeof(message)).encode(FORMAT)
     length += b' ' * (HEADER - len(length))
-    print(f'LENGTH: {str(sys.getsizeof(message))}\n{msg}')
+    print("HEADER_LENGTH: " + sys.getsizeof(length))
+    print(f'MSG_SIZE: {str(sys.getsizeof(message))}\n{msg}')
     conn.send(length)
     conn.send(message)
 
@@ -25,6 +26,7 @@ def get_msg(conn):
         print("Recieved Length: " + str(msg_length))
         msg_length = int(msg_length)
         msg = conn.recv(msg_length).decode(FORMAT)
+        print(f'OBTAINED_MSG:\n{msg}\n+++++++++++++++++++++++++++++++++++++')
         return msg
     else:
         return ""

