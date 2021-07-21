@@ -41,7 +41,6 @@ def handle_user():
             itr = 1
             for data in connected_machines:
                 print(f"{str(itr)}) {data['addr'][0]}")
-                print("sending " + new_cmd)
                 snd_msg(data['conn'], new_cmd)
                 resp = get_msg(data['conn'])
                 print(resp)

