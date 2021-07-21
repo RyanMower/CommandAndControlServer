@@ -3,12 +3,11 @@ import socket
 import threading
 import tqdm
 import os
-from C2utils import snd_file, get_file, snd_msg, get_msg
 
 #############################
 ## ========  Config  ========
 PORT = 5050          ## CONFIGURE THIS (TODO)
-SERVER = '127.0.0.1' ## CONFIGURE THIS (TODO)
+SERVER = '10.96.10.191' ## CONFIGURE THIS (TODO)
 ## --------------------------
 ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
