@@ -15,18 +15,19 @@ def snd_msg(conn, msg):
     message = msg.encode(FORMAT)
     length = (str(len(message))).encode(FORMAT)
     length += b' ' * (HEADER - len(length))
-    print("HEADER_LENGTH (64): " + str(len(length)))
-    print(f'MSG_SIZE: {str(len(message))}\n{msg}')
     conn.send(length)
     conn.send(message)
 
 def get_msg(conn):
     msg_length = conn.recv(HEADER).decode(FORMAT)
     if msg_length:
-        print("Recieved Length: " + str(msg_length))
         msg_length = int(msg_length)
-        msg = conn.recv(msg_length).decode(FORMAT)
-        print(f'OBTAINED_MSG:\n{msg}\n+++++++++++++++++++++++++++++++++++++')
+        bytes_recevied = 0
+        msg = ""
+        while bytes_recevied < msg_length:
+            buff = conn.recv(msg_length).decode(FORMAT)
+            bytes_recevied = bytes_recevied + len(buff)
+            msg = msg + buff
         return msg
     else:
         return ""
