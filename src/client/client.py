@@ -9,9 +9,9 @@ from C2utils import snd_msg, get_msg, snd_file, get_file
 
 #############################
 ## ========  Config  ========
-PORT = 5053 ## CONFIGURE THIS
-SERVER = socket.gethostbyname(socket.gethostname()) ## CONFIGURE THIS
+PORT = 5050 ## CONFIGURE THIS
 #SERVER = '127.0.0.1'
+SERVER = socket.gethostbyname(socket.gethostname()) ## CONFIGURE THIS
 ## --------------------------
 FORMAT = 'utf-8'
 ADDR = (SERVER, PORT)

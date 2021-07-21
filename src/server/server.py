@@ -7,7 +7,7 @@ from C2utils import snd_file, get_file, snd_msg, get_msg
 
 #############################
 ## ========  Config  ========
-PORT = 5053             ## CONFIGURE THIS
+PORT = 5050             ## CONFIGURE THIS
 SERVER = '127.0.0.1'    ## CONFIGURE THIS
 #SERVER = socket.gethostbyname(socket.gethostname())
 ## --------------------------
