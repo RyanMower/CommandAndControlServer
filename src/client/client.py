@@ -4,18 +4,11 @@ import os
 import subprocess
 import pathlib
 import tqdm
-import time
 
 #############################
 ## ========  Config  ========
-<<<<<<< HEAD
 PORT = 5050          ## CONFIGURE THIS (TODO)
 SERVER = '127.0.0.1' ## CONFIGURE THIS (TODO)
-=======
-PORT = 5050 ## CONFIGURE THIS
-#SERVER = '127.0.0.1'
-SERVER = socket.gethostbyname(socket.gethostname()) ## CONFIGURE THIS
->>>>>>> devel
 ## --------------------------
 FORMAT = 'utf-8'
 ADDR = (SERVER, PORT)
@@ -28,7 +21,7 @@ BUFFER_SIZE = 4096 # send 4096 bytes each time step
 ## ========= Utils ==========
 def snd_msg(conn, msg):
     message = msg.encode(FORMAT)
-    length = str(len(message)).encode(FORMAT)
+    length = (str(len(message))).encode(FORMAT)
     length += b' ' * (HEADER - len(length))
     conn.send(length)
     conn.send(message)
@@ -37,7 +30,12 @@ def get_msg(conn):
     msg_length = conn.recv(HEADER).decode(FORMAT)
     if msg_length:
         msg_length = int(msg_length)
-        msg = conn.recv(msg_length).decode(FORMAT)
+        bytes_recevied = 0
+        msg = ""
+        while bytes_recevied < msg_length:
+            buff = conn.recv(msg_length).decode(FORMAT)
+            bytes_recevied = bytes_recevied + len(buff)
+            msg = msg + buff
         return msg
     else:
         return ""
